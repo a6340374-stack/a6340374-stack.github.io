@@ -1,0 +1,15 @@
+---
+import InfoPage from '../layouts/InfoPage.astro';
+import { dispatcher } from '../data/routes';
+const map = 'https://yandex.ru/maps/?text=' + encodeURIComponent('Сибай улица Лермонтова 39/1');
+---
+<InfoPage title="Контакты автостанции Беседина в Сибае — телефон и адрес" description="Диспетчер: +7 (917) 432-49-70. Адрес автостанции по реестру Минтранса: Сибай, ул. Лермонтова, 39/1. Уточните место посадки перед поездкой.">
+  <nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="/">Главная</a><span aria-hidden="true">/</span><span>Контакты</span></nav>
+  <h1>Контакты и место посадки</h1>
+  <p class="info-lead">Уточните рейс, наличие мест и бронирование у диспетчера автостанции Беседина.</p>
+  <div class="info-layout"><div>
+    <section class="info-section"><h2>Автостанция в Сибае</h2><address>Республика Башкортостан, Сибай,<br />ул. Лермонтова, 39/1</address><p>Этот адрес указан для АС г. Сибай в <a href="https://mintrans.gov.ru/opendata/7705851331-stoppointsmzd/view" target="_blank" rel="noopener noreferrer">реестре Минтранса</a>, регистрационный номер 2255. Владельцем в записи указан ИП Беседин Валерий Васильевич.</p><a class="inline-link" href={map} target="_blank" rel="noopener noreferrer">Найти адрес в Яндекс Картах</a><p>Перед поездкой уточните у диспетчера вход и место посадки вашего автобуса. Для отправления из другого города адрес будет другим.</p></section>
+    <section class="info-section"><h2>Часы работы</h2><p>Время ответа диспетчера и работы кассы уточняйте по телефону. В открытых источниках часы открытия различаются, поэтому точный график пока не указан.</p></section>
+    <section class="info-section"><h2>Перед звонком</h2><p>Подготовьте направление, дату, время отправления и количество пассажиров. Спросите о наличии мест, стоимости билета и багажа, сроке выкупа брони и способах оплаты.</p><p>Если планируете поездку с ребёнком или животным, сообщите об этом заранее и уточните условия перевозки.</p></section>
+  </div><aside class="dispatcher-card"><h2>Диспетчер</h2><a class="dispatcher-number" href={`tel:${dispatcher.phone}`}>{dispatcher.label}</a><a class="button light" href={`tel:${dispatcher.phone}`}>Позвонить</a><p class="small">Бронирование считается согласованным после подтверждения диспетчера.</p></aside></div>
+</InfoPage>

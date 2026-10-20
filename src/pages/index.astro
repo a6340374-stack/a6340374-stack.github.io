@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import PageMeta from '../components/PageMeta.astro';
+import '../styles/global.css';
+import { cities, dispatcher, routes } from '../data/routes';
+import darkBus from '../assets/bus-exterior-dark.jpg';
+import silverBus from '../assets/bus-exterior-silver.jpg';
+import frontInterior from '../assets/bus-interior-front.webp';
+import sideInterior from '../assets/bus-interior-side.jpg';
+const call = `tel:${dispatcher.phone}`;
+const priceLabel = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <PageMeta title="Автостанция Беседина в Сибае — расписание, цены и звонок диспетчеру" description="Автобусы из Сибая в Магнитогорск и Оренбург: расписание, цены и поиск направления по дате. Уточнение мест и бронирование у диспетчера: +7 (917) 432-49-70." />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <header class="header wrap" id="top">
+      <a class="brand" href="#top" aria-label="Беседин — автостанция в Сибае"><span class="brand-mark" aria-hidden="true">Б</span><span>Беседин<small>Автостанция в Сибае</small></span></a>
+      <nav aria-label="Основная навигация" class="nav"><a href="#schedule">Расписание</a><a href="#booking">Как забронировать</a><a href="#buses">Автобусы</a><a href="/kontakty/">Контакты</a></nav>
+      <a class="header-phone" href={call}>{dispatcher.label}<small>Диспетчер · звонок и бронирование</small></a>
+      <button class="menu-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false" aria-label="Открыть меню">☰</button>
+    </header>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Мобильная навигация" hidden><a href="#schedule">Расписание</a><a href="#booking">Как забронировать</a><a href="#buses">Автобусы</a><a href="/kontakty/">Контакты</a></nav>
+    <main id="main">
+      <section class="hero wrap" aria-labelledby="page-title">
+        <div class="hero-copy"><p class="location">Автостанция Беседина</p><h1 id="page-title">Автобусы из Сибая<br />и обратно</h1><p class="hero-description">Выберите направление и дату, посмотрите расписание и цену. Место на рейсе поможет забронировать диспетчер.</p><a class="hero-link" href={call}>Позвонить: {dispatcher.label}</a></div>
+        <figure class="hero-photo"><Image src={darkBus} alt="Тёмный микроавтобус Mercedes-Benz Sprinter — пример типа и цвета автобусов" widths={[480,800,1200]} sizes="(max-width: 760px) 100vw, 55vw" width={900} format="webp" loading="eager" fetchpriority="high" /><figcaption>Mercedes-Benz Sprinter</figcaption></figure>
+      </section>
+      <section class="search-section wrap" aria-labelledby="search-title">
+        <div class="search-heading"><h2 id="search-title">Куда поедем?</h2><span>Расписание и цены</span></div>
+        <form id="trip-search" class="search-form" aria-describedby="search-hint">
+          <label>Откуда<select name="from" id="from"><option value="">Любой город</option>{cities.map(city => <option value={city} selected={city === 'Сибай'}>{city}</option>)}</select></label>
+          <button type="button" class="swap" id="swap" aria-label="Поменять города местами">⇄</button>
+          <label>Куда<select name="to" id="to"><option value="">Все направления</option>{cities.map(city => <option value={city}>{city}</option>)}</select></label>
+          <label>Дата поездки<input id="travel-date" name="date" type="date" required /></label>
+          <button class="button search-button" type="submit">Найти автобус <span aria-hidden="true">→</span></button>
+        </form>
+        <p id="search-hint">Дата помогает спланировать поездку. Наличие мест и выполнение рейса в выбранный день подтверждает диспетчер.</p>
+        <p id="search-error" role="alert" hidden></p>
+        <noscript><p>Для фильтрации включите JavaScript. Полное расписание и телефон доступны ниже.</p></noscript>
+      </section>
+      <section class="schedule-section wrap" id="schedule" aria-labelledby="schedule-title">
+        <div class="section-heading"><div><h2 id="schedule-title">Расписание автобусов</h2><p id="result-summary" role="status" aria-live="polite">Все направления из предоставленного расписания</p></div><button type="button" class="text-button" id="show-all">Все направления</button></div>
+        <div class="schedule-layout"><div>
+          <div class="route-shortcuts" aria-label="Быстрый выбор направления"><button type="button" data-destination="Магнитогорск">Сибай — Магнитогорск</button><button type="button" data-destination="Оренбург">Сибай — Оренбург</button><button type="button" data-destination="Соль-Илецк">Сибай — Соль-Илецк</button></div>
+          <p class="schedule-note">Время отправления — местное. Расписание не показывает свободные места. Неподтверждённые цены отмечены отдельно.</p>
+          <div class="route-list">{routes.map(route => <article class="route-card" data-from={route.from} data-to={route.to} id={route.id}>
+            <div class="route-heading"><div><p class="frequency">{route.daily ? 'Ежедневно по расписанию' : 'Дни отправления уточняются'}</p><h3>{route.from} <span aria-hidden="true">→</span> {route.to}</h3></div><div class="fare">{route.price !== null ? <><strong>{priceLabel(route.price)}</strong><span>{route.priceConfirmed ? 'за билет' : 'цена на фото · уточните'}</span></> : <><strong class="fare-unknown">Цена по телефону</strong><span>у диспетчера</span></>}</div></div>
+            <div class="route-bottom"><div class="departures"><span class="departure-label">Отправление</span>{route.times.length ? <ul aria-label="Время отправления">{route.times.map(time => <li><time>{time}</time></li>)}</ul> : <p class="time-unknown">Время уточните по телефону</p>}</div><a class="call-route" href={call} aria-label={`Позвонить диспетчеру для бронирования: ${route.from} — ${route.to}`}>Позвонить и забронировать<span>{dispatcher.label}</span></a></div>
+            {route.note && <p class="route-note">{route.note}</p>}
+            {['sibay-magnitogorsk', 'sibay-orenburg'].includes(route.id) && <a class="route-detail-link" href={`/marshruty/${route.id}/`}>Подробнее: расписание, обратный рейс и посадка</a>}
+          </article>)}</div>
+          <div class="empty-state" id="empty-state" hidden><h3>Такого направления нет в нашем расписании</h3><p>Попробуйте поменять города местами или уточните возможность поездки у диспетчера.</p><a class="button" href={call}>Позвонить {dispatcher.label}</a></div>
+          <details class="sources"><summary>Посмотреть фотографии расписания</summary><p>На сайте учтены уточнения: Сибай → Оренбург — 23:55, Магнитогорск → Сибай — в том числе 16:00.</p><div><a href="/sources/station-board.webp" target="_blank" rel="noopener">Расписание на стенде ↗</a><a href="/sources/printed-timetable.webp" target="_blank" rel="noopener">Лист расписания ↗</a></div></details>
+        </div><aside class="dispatcher-card" aria-labelledby="dispatcher-title"><h3 id="dispatcher-title">Бронирование у диспетчера</h3><p>Поможет уточнить рейс, стоимость и место посадки.</p><a class="dispatcher-number" href={call}>{dispatcher.label}</a><a class="button light" href={call}>Позвонить диспетчеру</a><div class="call-context" id="call-context" hidden><strong>Сообщите при звонке</strong><p id="call-context-text"></p></div><p class="small">Бронь считается согласованной после подтверждения диспетчера. Оплата — в кассе; возможность покупки у водителя уточняйте для своего рейса.</p></aside></div>
+      </section>
+      <section class="booking-section" id="booking"><div class="wrap"><div class="section-heading"><h2>От расписания до посадки</h2><p>Три шага перед поездкой</p></div><ol class="steps"><li><span>1</span><h3>Выберите поездку</h3><p>Найдите направление, удобное время и дату.</p></li><li><span>2</span><h3>Позвоните диспетчеру</h3><p>Уточните наличие мест, цену и согласуйте бронирование.</p></li><li><span>3</span><h3>Купите билет и приезжайте</h3><p>Уточните адрес посадки, время прибытия к автобусу и способ оплаты.</p></li></ol></div></section>
+      <section class="fleet wrap" id="buses"><div class="section-heading"><h2>Автобусы и салон</h2><p>Mercedes-Benz Sprinter</p></div><p class="section-intro">Фотографии показывают тип и цвет автобусов. Конкретную машину на вашем рейсе можно уточнить у диспетчера.</p><div class="fleet-grid"><figure class="fleet-exterior"><Image src={silverBus} alt="Серебристый Mercedes-Benz Sprinter" widths={[480,800,1200]} sizes="(max-width: 760px) 100vw, 50vw" width={800} format="webp" loading="lazy" /><figcaption>Серебристый Sprinter</figcaption></figure><figure><Image src={frontInterior} alt="Ряды сидений и багажные полки в салоне Sprinter" width={600} format="webp" loading="lazy" /><figcaption>Пассажирский салон</figcaption></figure><figure><Image src={sideInterior} alt="Сиденья и вход в салон Sprinter" width={600} format="webp" loading="lazy" /><figcaption>Вход и места для пассажиров</figcaption></figure></div></section>
+      <section class="passenger wrap" id="passengers"><h2>Перед поездкой</h2><div class="faq"><details><summary>Поиск на сайте бронирует место?</summary><p>Поиск показывает расписание. Позвоните диспетчеру, назовите направление, дату, время и количество пассажиров. Дождитесь подтверждения бронирования.</p></details><details><summary>Где купить билет?</summary><p>Билет можно купить в кассе. Возможность покупки у водителя, способ оплаты и срок выкупа брони уточните при звонке.</p></details><details><summary>Где садиться в автобус?</summary><p>Диспетчер сообщит точный адрес и ориентир для вашего рейса. Уточните место посадки заранее, особенно при отправлении из другого города.</p></details><details><summary>Как узнать правила багажа и поездки с детьми?</summary><p>Сообщите диспетчеру о детях, крупном багаже или поездке с животным до бронирования. Уточните документы, возможную доплату и условия конкретного рейса.</p></details></div></section>
+      <section class="contact-section" id="contacts"><div class="wrap contact-layout"><div><h2>Уточним вашу поездку</h2><p>Бронирование, наличие мест, цена и точное место отправления — у диспетчера автостанции Беседина.</p><a href={call} class="contact-number">{dispatcher.label}</a></div><div class="contact-action"><a class="button light" href={call}>Позвонить и забронировать</a><p>Сибай, ул. Лермонтова, 39/1 — адрес по реестру Минтранса. Место посадки и часы работы уточняйте у диспетчера. <a href="/kontakty/">Подробнее о посадке</a></p></div></div></section>
+    </main>
+    <footer class="wrap footer"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">Б</span><span>Беседин<small>Автостанция в Сибае</small></span></a><p>Расписание и бронирование по телефону</p><a href="#top">Наверх ↑</a></footer>
+    <script>import '../scripts/search';</script>
+  </body>
+</html>
+
+

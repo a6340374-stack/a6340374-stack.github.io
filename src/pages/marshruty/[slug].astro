@@ -1,0 +1,51 @@
+---
+import InfoPage from '../../layouts/InfoPage.astro';
+import { dispatcher, routes } from '../../data/routes';
+export function getStaticPaths() {
+  return routes.filter(r => ['sibay-magnitogorsk', 'sibay-orenburg'].includes(r.id))
+    .map(route => ({ params: { slug: route.id }, props: { route } }));
+}
+const { route } = Astro.props;
+const reverse = routes.find(r => r.from === route.to && r.to === route.from)!;
+const fare = route.price!.toLocaleString('ru-RU') + ' ₽';
+const isNight = route.id === 'sibay-orenburg';
+const search = '/?' + new URLSearchParams({ from: route.from, to: route.to }).toString() + '#search-title';
+---
+<InfoPage title={`Автобус ${route.from} — ${route.to}: расписание и цена ${fare} | Беседин`} description={`Отправление из Сибая: ${route.times.join(', ')}. Билет ${fare}. Расписание обратных рейсов, место посадки и бронирование у диспетчера ${dispatcher.label}.`}>
+  <nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="/">Главная</a><span aria-hidden="true">/</span><span>{route.from} — {route.to}</span></nav>
+  <h1>Автобус {route.from} — {route.to}</h1>
+  <p class="info-lead">{isNight ? 'Ночной рейс из Сибая в Оренбург. Отправление в 23:55 по местному времени.' : 'Семь отправлений из Сибая в течение дня. Первый рейс в 08:15, последний в 19:15.'} Бронирование — по телефону диспетчера.</p>
+  <div class="info-layout">
+    <div>
+      <section class="info-section" aria-labelledby="departures-title">
+        <h2 id="departures-title">Расписание из Сибая</h2>
+        <p>Ежедневно по предоставленному расписанию. Время местное.</p>
+        <ul class="route-times" aria-label="Отправления из Сибая">{route.times.map(time => <li><time>{time}</time></li>)}</ul>
+        <p class="route-price">Цена билета <strong>{fare}</strong></p>
+        <p>Наличие мест и выполнение рейса на выбранную дату подтверждает диспетчер. Время прибытия и стоимость багажа уточняйте при бронировании.</p>
+        {isNight && <p class="night-note">При бронировании назовите дату отправления: 23:55 — это вечер выбранного дня, за пять минут до полуночи.</p>}
+        <a class="inline-link" href={search}>Выбрать дату поездки</a>
+      </section>
+      <section class="info-section" aria-labelledby="return-title">
+        <h2 id="return-title">Обратно: {reverse.from} — Сибай</h2>
+        <p>Ежедневно по предоставленному расписанию.</p>
+        <ul class="route-times" aria-label="Обратные отправления">{reverse.times.map(time => <li><time>{time}</time></li>)}</ul>
+        <p>Цену обратного билета и адрес посадки в {isNight ? 'Оренбурге' : 'Магнитогорске'} уточните у диспетчера.</p>
+      </section>
+      <section class="info-section">
+        <h2>Посадка и покупка билета</h2>
+        <p>Адрес автостанции в Сибае по реестру Минтранса: ул. Лермонтова, 39/1. При звонке уточните вход, точное место посадки вашего рейса и за сколько времени нужно приехать.</p>
+        <p>Билет покупают в кассе. Возможность покупки у водителя, способы оплаты и срок выкупа брони согласуйте с диспетчером.</p>
+        <a class="inline-link" href="/kontakty/">Контакты и сведения об автостанции</a>
+      </section>
+      <section class="info-section">
+        <h2>Что сообщить диспетчеру</h2>
+        <ul class="passenger-list"><li>Направление, дату и время отправления.</li><li>Количество пассажиров, наличие детей и крупного багажа.</li><li>Нужен ли обратный билет.</li></ul>
+        <p>Поиск на сайте не создаёт бронь. Дождитесь подтверждения диспетчера.</p>
+      </section>
+    </div>
+    <aside class="dispatcher-card"><h2>Забронировать по телефону</h2><a class="dispatcher-number" href={`tel:${dispatcher.phone}`}>{dispatcher.label}</a><a class="button light" href={`tel:${dispatcher.phone}`}>Позвонить диспетчеру</a><p class="small">Назовите маршрут {route.from} — {route.to}, дату и удобное время.</p></aside>
+  </div>
+  <p class="content-provenance">Источник расписания — фотографии, предоставленные владельцем проекта, и уточнения в переписке. Перед поездкой подтвердите рейс по телефону.</p>
+  <nav class="related-routes" aria-label="Другие направления"><h2>Другие направления</h2><a href={isNight ? '/marshruty/sibay-magnitogorsk/' : '/marshruty/sibay-orenburg/'}>{isNight ? 'Сибай — Магнитогорск' : 'Сибай — Оренбург'}</a><a href="/#schedule">Полное расписание</a></nav>
+</InfoPage>

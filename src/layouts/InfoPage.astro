@@ -1,0 +1,21 @@
+---
+import '../styles/global.css';
+import PageMeta from '../components/PageMeta.astro';
+import { dispatcher } from '../data/routes';
+interface Props { title: string; description: string; noindex?: boolean; }
+const { title, description, noindex = false } = Astro.props;
+---
+<!doctype html>
+<html lang="ru">
+  <head><PageMeta title={title} description={description} noindex={noindex} /></head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <header class="header wrap info-header">
+      <a class="brand" href="/">Беседин<small>Автостанция в Сибае</small></a>
+      <a class="header-phone" href={`tel:${dispatcher.phone}`}>{dispatcher.label}<small>Диспетчер · бронирование</small></a>
+    </header>
+    <nav class="wrap info-nav" aria-label="Основная навигация"><a href="/#search-title">Найти автобус</a><a href="/#schedule">Все направления</a><a href="/kontakty/">Контакты и посадка</a></nav>
+    <main class="wrap info-page" id="main"><slot /></main>
+    <footer class="wrap footer"><a href="/">На главную</a><a href={`tel:${dispatcher.phone}`}>{dispatcher.label}</a><a href="/kontakty/">Контакты</a></footer>
+  </body>
+</html>
